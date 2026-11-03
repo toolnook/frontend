@@ -16,11 +16,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forgekit/docforge/internal/coverage"
-	"github.com/forgekit/docforge/internal/generator"
-	"github.com/forgekit/docforge/internal/parser"
-	"github.com/forgekit/docforge/internal/server"
-	"github.com/forgekit/docforge/internal/types"
+	"github.com/crafstack/docforge/internal/coverage"
+	"github.com/crafstack/docforge/internal/generator"
+	"github.com/crafstack/docforge/internal/parser"
+	"github.com/crafstack/docforge/internal/server"
+	"github.com/crafstack/docforge/internal/types"
 )
 
 func main() {

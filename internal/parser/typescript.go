@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/forgekit/docforge/internal/types"
+	"github.com/crafstack/docforge/internal/types"
 )
 
 // TypeScriptParser parses .ts and .tsx files for annotated documentation.

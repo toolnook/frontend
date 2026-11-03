@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/forgekit/docforge/internal/types"
+	"github.com/crafstack/docforge/internal/types"
 )
 
 func TestRegistryDetectLanguage(t *testing.T) {

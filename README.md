@@ -21,7 +21,7 @@ Most API documentation tools (Swagger, TypeDoc, Sphinx) are powerful but heavy â
 
 ```bash
 # Clone and build
-git clone https://github.com/forgekit/docforge.git
+git clone https://github.com/crafstack/docforge.git
 cd docforge
 go build -o docforge ./cmd/docforge
 

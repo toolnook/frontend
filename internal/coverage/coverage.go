@@ -5,7 +5,7 @@ package coverage
 import (
 	"fmt"
 
-	"github.com/forgekit/docforge/internal/types"
+	"github.com/crafstack/docforge/internal/types"
 )
 
 // Calculate computes the documentation coverage report for a project.
