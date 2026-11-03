@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/crafstack/docforge/internal/types"
+	"github.com/toolnook/docforge/internal/types"
 )
 
 func TestGenerateCreatesFiles(t *testing.T) {

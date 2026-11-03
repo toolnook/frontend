@@ -3,7 +3,7 @@ package graph
 import (
 	"testing"
 
-	"github.com/crafstack/docforge/internal/types"
+	"github.com/toolnook/docforge/internal/types"
 )
 
 func TestBuildSimpleGraph(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/crafstack/docforge/internal/types"
+	"github.com/toolnook/docforge/internal/types"
 )
 
 // PythonParser parses .py files for annotated documentation.

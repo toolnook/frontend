@@ -5,7 +5,7 @@ package graph
 import (
 	"strings"
 
-	"github.com/crafstack/docforge/internal/types"
+	"github.com/toolnook/docforge/internal/types"
 )
 
 // Builder constructs dependency graphs from project modules.

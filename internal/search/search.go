@@ -5,7 +5,7 @@ package search
 import (
 	"strings"
 
-	"github.com/crafstack/docforge/internal/types"
+	"github.com/toolnook/docforge/internal/types"
 )
 
 // Index is a searchable index of documentation entries.

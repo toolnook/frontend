@@ -19,4 +19,4 @@ All notable changes to DocForge are documented here. The format follows [Keep a 
 - CI workflow for GitHub Actions
 - Issue templates and PR template
 
-[0.1.0]: https://github.com/crafstack/docforge/releases/tag/v0.1.0
+[0.1.0]: https://github.com/toolnook/docforge/releases/tag/v0.1.0

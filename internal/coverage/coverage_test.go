@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/crafstack/docforge/internal/types"
+	"github.com/toolnook/docforge/internal/types"
 )
 
 func TestCalculateFullCoverage(t *testing.T) {

@@ -5,7 +5,7 @@ Thanks for your interest in improving DocForge! This guide covers the developmen
 ## Getting started
 
 ```bash
-git clone https://github.com/crafstack/docforge.git
+git clone https://github.com/toolnook/docforge.git
 cd docforge
 go build -o docforge ./cmd/docforge
 go test ./... -v
