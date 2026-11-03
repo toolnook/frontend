@@ -1,24 +1,24 @@
-# Toolnook Frontend
+# Toolnook Frontend — Soroban Contract Documentation
 
-The documentation generator for the Toolnook platform. Turns annotated source code into a static, searchable API reference site with dependency graphs and coverage indicators.
+A documentation generator for Soroban smart contracts on Stellar. Parses Rust source files annotated with `@doc`, `@param`, `@returns`, and `@example` tags and generates a static, searchable documentation site with dependency graphs and coverage indicators.
 
-Part of the [Toolnook](https://github.com/toolnook) open-source developer infrastructure platform:
+Part of the [Toolnook](https://github.com/toolnook) Stellar developer tooling platform:
 
 | Repo | Role |
 |------|------|
-| [toolnook/backend](https://github.com/toolnook/backend) | API gateway, reverse proxy, rate limiting, circuit breaker |
-| **toolnook/frontend** | Documentation-as-code generator with dependency graphs |
-| [toolnook/contracts](https://github.com/toolnook/contracts) | Double-entry accounting CLI with project profitability |
+| [toolnook/backend](https://github.com/toolnook/backend) | Horizon gateway with caching, rate limiting, circuit breaker |
+| **toolnook/frontend** | Soroban contract documentation generator |
+| [toolnook/contracts](https://github.com/toolnook/contracts) | XLM payment reconciliation and double-entry ledger |
 
-## What it does
+## Why this helps Stellar
 
-Toolnook Frontend scans your source files for custom annotation comments and generates a complete static documentation website:
+Soroban smart contracts on Stellar are written in Rust using the `soroban-sdk`. There's no standard tool for generating user-friendly documentation from contract source. Toolnook Frontend:
 
-- **Parses** `@doc`, `@param`, `@returns`, `@example` annotations
-- **Supports** TypeScript and Python (extensible to more languages)
-- **Generates** static HTML/CSS/JS with built-in search
-- **Visualizes** module dependencies as an interactive SVG graph
-- **Reports** documentation coverage — flags undocumented public symbols
+- **Parses** Soroban `#[contractimpl]`, `#[contracttype]`, and `#[contractevent]` attributes
+- **Extracts** contract method signatures, parameter types, return types, and events
+- **Generates** a static HTML site with search, styled for reading contract APIs
+- **Visualizes** dependencies between contract modules as an interactive SVG graph
+- **Reports** documentation coverage — flags undocumented public contract methods
 
 ## Quick start
 
@@ -27,11 +27,11 @@ git clone https://github.com/toolnook/frontend.git
 cd frontend
 go build -o frontend ./cmd/frontend
 
-# Scan source files
-./frontend scan ./src
+# Scan Soroban contract source
+./frontend scan ./contracts
 
 # Generate docs site
-./frontend build -dir ./src -o ./docs
+./frontend build -dir ./contracts -o ./docs
 
 # Serve locally
 ./frontend serve -d ./docs -port 8090
@@ -39,73 +39,72 @@ go build -o frontend ./cmd/frontend
 
 ## Annotation format
 
-### TypeScript
+```rust
+use soroban_sdk::{contractimpl, Address, Env};
 
-```typescript
-/**
- * @doc Adds two numbers
- * @param {number} a - The first number
- * @param {number} b - The second number
- * @returns {number} The sum
- * @example
- * add(1, 2) // returns 3
- */
-export function add(a: number, b: number): number {
-  return a + b;
+/// @doc Transfers tokens between accounts
+/// @param from: Address The sender's account
+/// @param to: Address The receiver's account
+/// @param amount: i128 The amount to transfer in base units
+/// @returns Result<(), Error> Ok on success, Error on failure
+/// @example
+/// token.transfer(env, &from, &to, 1_000_000)
+#[contractimpl]
+impl TokenContract {
+    /// @doc Returns the total supply
+    /// @returns i128 The total token supply
+    pub fn total_supply(env: Env) -> i128 {
+        0
+    }
+
+    /// @doc Transfers tokens
+    /// @param from: Address The sender
+    /// @param to: Address The receiver
+    /// @param amount: i128 The amount
+    pub fn transfer(env: Env, from: Address, to: Address, amount: i128) -> Result<(), Error> {
+        Ok(())
+    }
+}
+
+/// @doc Error types for the token contract
+#[contracttype]
+pub enum Error {
+    InsufficientBalance = 1,
+    Unauthorized = 2,
+}
+
+/// @doc Emitted on successful transfer
+#[contractevent]
+pub struct TransferEvent {
+    pub from: Address,
+    pub to: Address,
+    pub amount: i128,
 }
 ```
 
-### Python
+## What it recognizes
 
-```python
-# @doc Adds two numbers
-# @param a (int) The first number
-# @param b (int) The second number
-# @returns (int) The sum
-def add(a, b):
-    return a + b
-```
+| Soroban attribute | Parsed as | Tags |
+|-------------------|-----------|------|
+| `#[contractimpl]` | Contract entry points (functions inside impl block) | `contract` |
+| `#[contracttype]` | Custom types (structs, enums) | `soroban-type` |
+| `#[contractevent]` | Event definitions | `event` |
+
+Also parses TypeScript and Python for non-contract code documentation.
 
 ## CLI commands
 
 ```bash
-frontend scan ./src           # Parse and output summary
-frontend build -dir ./src -o ./docs   # Generate static site
-frontend serve -d ./docs       # Serve locally
+frontend scan ./contracts           # Parse and output summary
+frontend build -dir ./contracts -o ./docs   # Generate static site
+frontend serve -d ./docs             # Serve locally
 ```
-
-## Architecture
-
-```
-Source files → Parser → Documents → Generator → Static HTML site
-                ↓                        ↓
-           Coverage %              Search index (JSON)
-                ↓                        ↓
-          Coverage badge            Dependency graph (SVG)
-```
-
-| Package | Responsibility |
-|---------|---------------|
-| `internal/types` | Core data structures |
-| `internal/parser` | TS + Python annotation parsing |
-| `internal/generator` | HTML/CSS/JS site generation |
-| `internal/search` | Search index builder |
-| `internal/graph` | Dependency graph + SVG |
-| `internal/coverage` | Documentation coverage |
-| `internal/server` | Local dev server |
 
 ## Running tests
 
 ```bash
 go test ./... -v
 ```
-
-## Roadmap
-
-- [ ] Go, Rust, Java parser support
-- [ ] Markdown page support
-- [ ] Custom themes
-- [ ] Export to OpenAPI/JSON Schema
 
 ## License
 

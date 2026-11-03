@@ -34,13 +34,14 @@ type Registry struct {
 }
 
 // NewRegistry creates a registry with the built-in parsers
-// (TypeScript and Python).
+// (TypeScript, Python, and Rust/Soroban).
 func NewRegistry() *Registry {
 	r := &Registry{
 		extMap: make(map[string]LanguageParser),
 	}
 	r.Register(&TypeScriptParser{})
 	r.Register(&PythonParser{})
+	r.Register(&RustParser{})
 	return r
 }
 
