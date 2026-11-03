@@ -3,7 +3,7 @@ package search
 import (
 	"testing"
 
-	"github.com/toolnook/docforge/internal/types"
+	"github.com/toolnook/frontend/internal/types"
 )
 
 func TestBuildIndex(t *testing.T) {

@@ -1,38 +1,40 @@
-# DocForge
+# Toolnook Frontend
 
-A documentation-as-code generator that turns annotated source code into a static, searchable API reference site. Think of it as a lightweight, dependency-minimal alternative to Swagger/OpenAPI for teams that don't want a full framework.
+The documentation generator for the Toolnook platform. Turns annotated source code into a static, searchable API reference site with dependency graphs and coverage indicators.
+
+Part of the [Toolnook](https://github.com/toolnook) open-source developer infrastructure platform:
+
+| Repo | Role |
+|------|------|
+| [toolnook/backend](https://github.com/toolnook/backend) | API gateway, reverse proxy, rate limiting, circuit breaker |
+| **toolnook/frontend** | Documentation-as-code generator with dependency graphs |
+| [toolnook/contracts](https://github.com/toolnook/contracts) | Double-entry accounting CLI with project profitability |
 
 ## What it does
 
-DocForge scans your source files for custom annotation comments and generates a complete static documentation website:
+Toolnook Frontend scans your source files for custom annotation comments and generates a complete static documentation website:
 
-- **Parses annotations** from `@doc`, `@param`, `@returns`, and `@example` comment tags
-- **Supports TypeScript and Python** (extensible to other languages)
-- **Generates static HTML/CSS/JS** with built-in search
-- **Visualizes dependencies** as an interactive SVG graph
-- **Reports documentation coverage** — shows which public functions lack docs
-- **Serves locally** for development preview
-
-## Why it exists
-
-Most API documentation tools (Swagger, TypeDoc, Sphinx) are powerful but heavy — they require specific frameworks, build tooling, or configuration formats. DocForge uses a simple comment convention that works in any language and produces a standalone static site with zero runtime dependencies.
+- **Parses** `@doc`, `@param`, `@returns`, `@example` annotations
+- **Supports** TypeScript and Python (extensible to more languages)
+- **Generates** static HTML/CSS/JS with built-in search
+- **Visualizes** module dependencies as an interactive SVG graph
+- **Reports** documentation coverage — flags undocumented public symbols
 
 ## Quick start
 
 ```bash
-# Clone and build
-git clone https://github.com/toolnook/docforge.git
-cd docforge
-go build -o docforge ./cmd/docforge
+git clone https://github.com/toolnook/frontend.git
+cd frontend
+go build -o frontend ./cmd/frontend
 
 # Scan source files
-./docforge scan ./src
+./frontend scan ./src
 
-# Generate documentation site
-./docforge build -dir ./src -o ./docs
+# Generate docs site
+./frontend build -dir ./src -o ./docs
 
 # Serve locally
-./docforge serve -d ./docs -port 8090
+./frontend serve -d ./docs -port 8090
 ```
 
 ## Annotation format
@@ -41,10 +43,10 @@ go build -o docforge ./cmd/docforge
 
 ```typescript
 /**
- * @doc Adds two numbers together
+ * @doc Adds two numbers
  * @param {number} a - The first number
  * @param {number} b - The second number
- * @returns {number} The sum of a and b
+ * @returns {number} The sum
  * @example
  * add(1, 2) // returns 3
  */
@@ -59,90 +61,38 @@ export function add(a: number, b: number): number {
 # @doc Adds two numbers
 # @param a (int) The first number
 # @param b (int) The second number
-# @returns (int) The sum of a and b
-# @example
-# add(1, 2)  # returns 3
+# @returns (int) The sum
 def add(a, b):
     return a + b
 ```
 
 ## CLI commands
 
-### `docforge scan <dir>`
-Parse source files and output a summary of documented symbols.
-
 ```bash
-./docforge scan ./src -format json
+frontend scan ./src           # Parse and output summary
+frontend build -dir ./src -o ./docs   # Generate static site
+frontend serve -d ./docs       # Serve locally
 ```
 
-### `docforge build`
-Generate the static documentation site.
-
-```bash
-./docforge build -dir ./src -o ./docs -version 1.0.0
-```
-
-Options:
-- `-dir` — Source directory to scan (default: `.`)
-- `-o` — Output directory (default: `./docs`)
-- `-version` — Version tag for the docs (default: `0.1.0`)
-- `-name` — Project name (defaults to directory name)
-
-### `docforge serve`
-Serve generated docs locally.
-
-```bash
-./docforge serve -d ./docs -port 8090
-```
-
-## Architecture overview
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    CLI (main.go)                      │
-│       scan / build / serve command dispatch           │
-├─────────────┬──────────────┬────────────────────────┤
-│   Parser    │  Generator   │  Server                 │
-│ (parser/)   │ (generator/) │ (server/)              │
-│             │              │                         │
-│ TypeScript  │ HTML pages    │ Static file             │
-│ Python      │ CSS + JS      │ serving                 │
-│ Registry    │ Search index  │                         │
-├─────────────┤ Graph data    ├────────────────────────┤
-│   Search    │ Coverage      │  Graph                  │
-│ (search/)   │ (coverage/)   │ (graph/)                │
-│             │               │                         │
-│ Index build │ Coverage %    │ Dependency              │
-│ Query       │ Missing list  │ graph + SVG             │
-├─────────────┴───────────────┴────────────────────────┤
-│              Types (types.go)                         │
-│  Document, Module, Project, CoverageReport           │
-└─────────────────────────────────────────────────────┘
+Source files → Parser → Documents → Generator → Static HTML site
+                ↓                        ↓
+           Coverage %              Search index (JSON)
+                ↓                        ↓
+          Coverage badge            Dependency graph (SVG)
 ```
 
 | Package | Responsibility |
 |---------|---------------|
-| `internal/types` | Core data structures (Document, Module, Project) |
-| `internal/parser` | Source file parsing with annotation extraction |
-| `internal/generator` | Static HTML/CSS/JS site generation |
-| `internal/search` | Search index building and querying |
-| `internal/graph` | Dependency graph construction and visualization |
-| `internal/coverage` | Documentation coverage calculation |
-| `internal/server` | Local HTTP server for development |
-
-## Unique features
-
-### Dependency graph
-
-DocForge analyzes import statements across modules and generates an interactive SVG visualization showing which modules depend on which. The graph is rendered client-side with size proportional to dependency degree.
-
-### Coverage indicator
-
-The generated site shows a progress bar indicating what percentage of public symbols have documentation. Undocumented symbols are highlighted with a "missing docs" badge, making it easy to identify gaps.
-
-### Annotation convention
-
-The annotation format is deliberately simple — just `@tag value` in comments. No special syntax, no custom file format, no preprocessing step. It works with any editor and any language that supports comments.
+| `internal/types` | Core data structures |
+| `internal/parser` | TS + Python annotation parsing |
+| `internal/generator` | HTML/CSS/JS site generation |
+| `internal/search` | Search index builder |
+| `internal/graph` | Dependency graph + SVG |
+| `internal/coverage` | Documentation coverage |
+| `internal/server` | Local dev server |
 
 ## Running tests
 
@@ -152,12 +102,10 @@ go test ./... -v
 
 ## Roadmap
 
-- [ ] Support for Go, Rust, and Java annotations
-- [ ] Markdown page support (intermixed with API docs)
-- [ ] Custom theme support
-- [ ] Versioned documentation with diff view
+- [ ] Go, Rust, Java parser support
+- [ ] Markdown page support
+- [ ] Custom themes
 - [ ] Export to OpenAPI/JSON Schema
-- [ ] Plugin system for custom parsers
 
 ## License
 

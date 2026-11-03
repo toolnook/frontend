@@ -16,11 +16,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/toolnook/docforge/internal/coverage"
-	"github.com/toolnook/docforge/internal/generator"
-	"github.com/toolnook/docforge/internal/parser"
-	"github.com/toolnook/docforge/internal/server"
-	"github.com/toolnook/docforge/internal/types"
+	"github.com/toolnook/frontend/internal/coverage"
+	"github.com/toolnook/frontend/internal/generator"
+	"github.com/toolnook/frontend/internal/parser"
+	"github.com/toolnook/frontend/internal/server"
+	"github.com/toolnook/frontend/internal/types"
 )
 
 func main() {

@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/toolnook/docforge/internal/types"
+	"github.com/toolnook/frontend/internal/types"
 )
 
 // Generator creates the static documentation site.

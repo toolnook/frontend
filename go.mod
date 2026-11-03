@@ -1,3 +1,3 @@
-module github.com/toolnook/docforge
+module github.com/toolnook/frontend
 
 go 1.23.3

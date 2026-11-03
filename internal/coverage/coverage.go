@@ -5,7 +5,7 @@ package coverage
 import (
 	"fmt"
 
-	"github.com/toolnook/docforge/internal/types"
+	"github.com/toolnook/frontend/internal/types"
 )
 
 // Calculate computes the documentation coverage report for a project.
