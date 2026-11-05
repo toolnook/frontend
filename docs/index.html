@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly guide to DocForge, Toolnook's Soroban contract documentation generator.">
+  <title>Toolnook Frontend | Soroban docs, made clearer</title>
+  <link rel="icon" href="assets/toolnook-logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="https://github.com/toolnook" aria-label="Toolnook on GitHub">
+      <img src="assets/toolnook-logo.svg" alt="Toolnook">
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="#start">Get started</a>
+      <a href="#annotate">Write useful docs</a>
+      <a href="https://github.com/toolnook/frontend">Source code</a>
+    </nav>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Toolnook for Stellar · Frontend / DocForge</div>
+      <h1>Make smart-contract code easier to understand.</h1>
+      <p>DocForge reads your Soroban contract's Rust source and turns helpful code comments into a small website. Readers can browse what a contract does without starting with every line of code.</p>
+      <div class="actions">
+        <a class="button" href="#start">Start here</a>
+        <a class="button secondary" href="https://github.com/toolnook/frontend">View the code</a>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="projects-title">
+      <h2 id="projects-title">Part of the Toolnook toolkit</h2>
+      <p class="lead">Toolnook projects support different steps of building and working with Stellar.</p>
+      <div class="projects">
+        <a href="https://toolnook.github.io/backend/">Backend · API gateway</a>
+        <a href="https://github.com/toolnook/frontend" aria-current="page">Frontend · contract docs</a>
+        <a href="https://toolnook.github.io/contracts/">Contracts · payment ledger</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What is Soroban?</h2>
+      <p class="lead">Soroban is Stellar's smart-contract platform. A smart contract is a program that runs on a network. DocForge helps explain the public interface in its source code; it does not deploy contracts or check a live contract.</p>
+      <div class="grid">
+        <article class="card"><h3>Functions</h3><p>Operations a user or another contract can call, such as transferring a token.</p></article>
+        <article class="card"><h3>Types</h3><p>Named shapes for the data a contract uses, such as a settings record or an error enum.</p></article>
+        <article class="card"><h3>Events</h3><p>Messages a contract emits so other applications can learn that something happened.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="annotate">
+      <h2>Write a useful explanation</h2>
+      <p class="lead">Add short notes to your Rust source. DocForge uses these tags to give readers context for a function's purpose and inputs.</p>
+      <pre><code>/// @doc Send tokens from one account to another
+/// @param from: Address The account sending tokens
+/// @param to: Address The account receiving tokens
+/// @param amount: i128 Amount in the token's smallest unit
+/// @returns Result<(), Error> Success or a contract error
+#[contractimpl]
+impl TokenContract {
+    pub fn transfer(
+        env: Env,
+        from: Address,
+        to: Address,
+        amount: i128,
+    ) -&gt; Result&lt;(), Error&gt; {
+        // Contract implementation
+    }
+}</code></pre>
+    </section>
+
+    <section class="section" id="start">
+      <h2>Generate and preview your docs</h2>
+      <p class="lead">You need Go 1.23 or newer and a folder containing your Soroban Rust source.</p>
+      <div class="grid">
+        <article class="card"><span class="step">1</span><h3>Download DocForge</h3><pre><code>git clone https://github.com/toolnook/frontend.git
+cd frontend</code></pre></article>
+        <article class="card"><span class="step">2</span><h3>Scan and build</h3><pre><code>go run ./cmd/docforge scan \
+  -dir /path/to/your-contract
+
+go run ./cmd/docforge build \
+  -dir /path/to/your-contract \
+  -o ./generated-docs \
+  -name MyContract</code></pre></article>
+        <article class="card"><span class="step">3</span><h3>Preview locally</h3><pre><code>go run ./cmd/docforge serve \
+  -d ./generated-docs</code></pre><p>Open the local address printed in your terminal, usually <code>http://localhost:8090</code>.</p></article>
+      </div>
+    </section>
+  </main>
+  <footer>DocForge describes source code; it does not deploy or verify a live contract. Toolnook is independent of Stellar. <a href="https://github.com/toolnook/frontend">Frontend source</a> · MIT License</footer>
+</body>
+</html>

@@ -1,111 +1,51 @@
-# Toolnook Frontend — Soroban Contract Documentation
+![Toolnook](docs/assets/toolnook-logo.svg)
 
-A documentation generator for Soroban smart contracts on Stellar. Parses Rust source files annotated with `@doc`, `@param`, `@returns`, and `@example` tags and generates a static, searchable documentation site with dependency graphs and coverage indicators.
+# Toolnook Frontend (DocForge)
 
-Part of the [Toolnook](https://github.com/toolnook) Stellar developer tooling platform:
+**Readable documentation for Soroban smart contracts.** DocForge scans annotated source code and turns it into a searchable website, so people can understand a contract's functions, types, and events without reading every source file first.
 
-| Repo | Role |
-|------|------|
-| [toolnook/backend](https://github.com/toolnook/backend) | Horizon gateway with caching, rate limiting, circuit breaker |
-| **toolnook/frontend** | Soroban contract documentation generator |
-| [toolnook/contracts](https://github.com/toolnook/contracts) | XLM payment reconciliation and double-entry ledger |
+[Read the beginner-friendly guide](https://toolnook.github.io/frontend/) · [Browse all Toolnook projects](https://github.com/toolnook)
 
-## Why this helps Stellar
+## What does it do?
 
-Soroban smart contracts on Stellar are written in Rust using the `soroban-sdk`. There's no standard tool for generating user-friendly documentation from contract source. Toolnook Frontend:
+Soroban is Stellar's smart-contract platform. A Soroban contract may expose functions, define custom types, and emit events. DocForge reads Rust source comments and Soroban attributes, then creates a static HTML reference site that you can share or host.
 
-- **Parses** Soroban `#[contractimpl]`, `#[contracttype]`, and `#[contractevent]` attributes
-- **Extracts** contract method signatures, parameter types, return types, and events
-- **Generates** a static HTML site with search, styled for reading contract APIs
-- **Visualizes** dependencies between contract modules as an interactive SVG graph
-- **Reports** documentation coverage — flags undocumented public contract methods
+DocForge describes source code; it does not deploy contracts or verify what a live contract does.
 
-## Quick start
+## Try it locally
+
+You need Go 1.23 or newer. From this repository, scan a directory containing your Soroban Rust source:
 
 ```bash
 git clone https://github.com/toolnook/frontend.git
 cd frontend
-go build -o frontend ./cmd/frontend
-
-# Scan Soroban contract source
-./frontend scan ./contracts
-
-# Generate docs site
-./frontend build -dir ./contracts -o ./docs
-
-# Serve locally
-./frontend serve -d ./docs -port 8090
+go run ./cmd/docforge scan -dir /path/to/your-contract
 ```
 
-## Annotation format
-
-```rust
-use soroban_sdk::{contractimpl, Address, Env};
-
-/// @doc Transfers tokens between accounts
-/// @param from: Address The sender's account
-/// @param to: Address The receiver's account
-/// @param amount: i128 The amount to transfer in base units
-/// @returns Result<(), Error> Ok on success, Error on failure
-/// @example
-/// token.transfer(env, &from, &to, 1_000_000)
-#[contractimpl]
-impl TokenContract {
-    /// @doc Returns the total supply
-    /// @returns i128 The total token supply
-    pub fn total_supply(env: Env) -> i128 {
-        0
-    }
-
-    /// @doc Transfers tokens
-    /// @param from: Address The sender
-    /// @param to: Address The receiver
-    /// @param amount: i128 The amount
-    pub fn transfer(env: Env, from: Address, to: Address, amount: i128) -> Result<(), Error> {
-        Ok(())
-    }
-}
-
-/// @doc Error types for the token contract
-#[contracttype]
-pub enum Error {
-    InsufficientBalance = 1,
-    Unauthorized = 2,
-}
-
-/// @doc Emitted on successful transfer
-#[contractevent]
-pub struct TransferEvent {
-    pub from: Address,
-    pub to: Address,
-    pub amount: i128,
-}
-```
-
-## What it recognizes
-
-| Soroban attribute | Parsed as | Tags |
-|-------------------|-----------|------|
-| `#[contractimpl]` | Contract entry points (functions inside impl block) | `contract` |
-| `#[contracttype]` | Custom types (structs, enums) | `soroban-type` |
-| `#[contractevent]` | Event definitions | `event` |
-
-Also parses TypeScript and Python for non-contract code documentation.
-
-## CLI commands
+Generate and preview a site:
 
 ```bash
-frontend scan ./contracts           # Parse and output summary
-frontend build -dir ./contracts -o ./docs   # Generate static site
-frontend serve -d ./docs             # Serve locally
+go run ./cmd/docforge build -dir /path/to/your-contract -o ./generated-docs -name MyContract
+go run ./cmd/docforge serve -d ./generated-docs
 ```
 
-## Running tests
+Open the local address printed by the server (usually `http://localhost:8090`). Add tags such as `@doc`, `@param`, `@returns`, and `@example` to source comments to give readers useful explanations.
 
-```bash
-go test ./... -v
-```
+## Concepts in plain language
 
-## License
+| Term | Meaning |
+| --- | --- |
+| Soroban | Stellar's platform for smart contracts. |
+| Contract function | An operation a user or another contract can call. |
+| Type | The shape of data used by a contract, such as a record or enum. |
+| Event | A message a contract emits to describe something that happened. |
+| Static site | Plain HTML files that can be hosted without running an application server. |
 
-MIT — see [LICENSE](LICENSE).
+## Explore and contribute
+
+- [Project guide and annotation examples](https://toolnook.github.io/frontend/)
+- [Source code](https://github.com/toolnook/frontend)
+- [Report a problem](https://github.com/toolnook/frontend/issues)
+- [Contribution guide](CONTRIBUTING.md)
+
+Run the test suite with `go test ./...`. This project is open source under the [MIT License](LICENSE).
