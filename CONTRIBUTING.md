@@ -6,7 +6,7 @@ Thanks for your interest in improving DocForge! This guide covers the developmen
 
 ```bash
 git clone https://github.com/toolnook/frontend.git
-cd docforge
+cd frontend
 go build -o docforge ./cmd/docforge
 go test ./... -v
 ```
