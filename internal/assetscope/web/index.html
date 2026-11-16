@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AssetScope · Issuer snapshot review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #17233b;
+      background: #f3f6fb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header {
+      background: #102449;
+      color: white;
+      padding: 1.15rem max(1.25rem, calc((100% - 1040px) / 2));
+    }
+    header strong { font-size: 1.15rem; letter-spacing: .02em; }
+    header span { color: #b7c9e8; margin-left: .75rem; font-size: .9rem; }
+    main { max-width: 1040px; margin: 2rem auto; padding: 0 1.25rem 3rem; }
+    .intro { margin-bottom: 1.5rem; }
+    h1 { margin: 0 0 .45rem; font-size: clamp(1.65rem, 3vw, 2.2rem); }
+    p { color: #53627a; line-height: 1.55; margin: .4rem 0; }
+    .notice {
+      border-left: 4px solid #d59a2a;
+      background: #fff8e9;
+      padding: .8rem 1rem;
+      border-radius: .35rem;
+      margin: 1.25rem 0;
+      color: #5d491f;
+      font-size: .92rem;
+    }
+    form, .result {
+      background: white;
+      border: 1px solid #dce3ee;
+      border-radius: .8rem;
+      padding: 1.35rem;
+      box-shadow: 0 8px 28px #20385d0a;
+    }
+    h2 { margin: 0 0 1rem; font-size: 1.12rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    label { display: block; font-size: .9rem; font-weight: 650; color: #293a57; }
+    input { display: block; width: 100%; margin-top: .4rem; }
+    input[type="text"], input[type="number"] {
+      border: 1px solid #cbd5e3;
+      border-radius: .45rem;
+      padding: .65rem .7rem;
+      font: inherit;
+      background: white;
+    }
+    input[type="file"] { font: inherit; margin-top: .55rem; }
+    .hint { color: #687891; font-size: .8rem; font-weight: 400; margin-top: .35rem; }
+    .sources { display: grid; gap: .9rem; margin-top: 1.1rem; }
+    .source {
+      border: 1px solid #e0e6ef;
+      padding: .85rem;
+      border-radius: .55rem;
+      background: #fbfcfe;
+    }
+    .source label { font-weight: 600; }
+    button {
+      border: 0;
+      border-radius: .45rem;
+      background: #1762c4;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      padding: .72rem 1rem;
+      cursor: pointer;
+      margin-top: 1.1rem;
+    }
+    button:hover { background: #104e9e; }
+    button:disabled { opacity: .6; cursor: wait; }
+    .result { margin-top: 1.25rem; }
+    .result[hidden] { display: none; }
+    .status { font-weight: 750; margin: 0 0 .5rem; }
+    .status.ok { color: #13744b; }
+    .status.warn { color: #a45b0a; }
+    .status.error { color: #a12626; }
+    pre {
+      overflow: auto;
+      background: #101b2c;
+      color: #e3ecf8;
+      padding: 1rem;
+      border-radius: .5rem;
+      font-size: .82rem;
+    }
+    @media (max-width: 640px) {
+      main { margin-top: 1.25rem; }
+      .grid { grid-template-columns: 1fr; }
+      form, .result { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header><strong>AssetScope</strong><span>Issuer snapshot review</span></header>
+  <main>
+    <section class="intro">
+      <h1>Compare issuer snapshots</h1>
+      <p>Review whether reported on-chain balances, booked liabilities, and reserve values line up for one Stellar asset.</p>
+    </section>
+    <div class="notice">
+      This prototype compares supplied data only. Convert every amount to the issued asset's units first.
+      A clean result does not verify reserves or prove solvency.
+    </div>
+    <form id="compare-form">
+      <h2>Asset details</h2>
+      <div class="grid">
+        <label>Asset code
+          <input name="asset_code" type="text" required maxlength="12" placeholder="USD">
+        </label>
+        <label>Issuer public key
+          <input name="asset_issuer" type="text" placeholder="G... (leave blank for XLM)">
+        </label>
+        <label>Allowed difference
+          <input name="tolerance" type="number" min="0" step="any" value="0">
+          <span class="hint">In issued-asset units. Default is exact comparison.</span>
+        </label>
+      </div>
+      <h2 style="margin-top:1.4rem">Snapshot CSV files</h2>
+      <p class="hint">Required columns: asset_code, asset_issuer, amount_in_issued_asset_units, as_of, source_ref.</p>
+      <div class="sources">
+        <div class="source"><label>On-chain balances CSV<input name="onchain_csv" type="file" accept=".csv,text/csv" required></label></div>
+        <div class="source"><label>Ledger liabilities CSV<input name="ledger_csv" type="file" accept=".csv,text/csv" required></label></div>
+        <div class="source"><label>Reserve values CSV<input name="reserves_csv" type="file" accept=".csv,text/csv" required></label></div>
+      </div>
+      <button id="submit" type="submit">Compare snapshots</button>
+    </form>
+    <section id="result" class="result" aria-live="polite" hidden>
+      <p id="status" class="status"></p>
+      <p id="message"></p>
+      <pre id="report"></pre>
+    </section>
+  </main>
+  <script>
+    const form = document.querySelector("#compare-form");
+    const button = document.querySelector("#submit");
+    const result = document.querySelector("#result");
+    const status = document.querySelector("#status");
+    const message = document.querySelector("#message");
+    const report = document.querySelector("#report");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      result.hidden = true;
+      button.disabled = true;
+      button.textContent = "Comparing…";
+      try {
+        const values = new FormData(form);
+        const payload = {
+          asset_code: values.get("asset_code").trim(),
+          asset_issuer: values.get("asset_issuer").trim(),
+          tolerance: values.get("tolerance") || "0"
+        };
+        for (const key of ["onchain_csv", "ledger_csv", "reserves_csv"]) {
+          const file = values.get(key);
+          if (!file || file.size === 0) throw new Error(`Choose a file for ${key.replace("_csv", "")}.`);
+          if (file.size > 600 * 1024) throw new Error("Each CSV must be no larger than 600 KiB.");
+          payload[key] = await file.text();
+        }
+
+        const response = await fetch("/api/assetscope/compare", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || `Request failed (${response.status}).`);
+
+        status.textContent = body.status === "reconciled" ? "Snapshots agree within tolerance" : "Review required";
+        status.className = `status ${body.status === "reconciled" ? "ok" : "warn"}`;
+        message.textContent = (body.findings || []).join(" ") || "No discrepancies found in the supplied snapshots.";
+        report.textContent = JSON.stringify(body, null, 2);
+      } catch (error) {
+        status.textContent = "Could not compare snapshots";
+        status.className = "status error";
+        message.textContent = error.message || "An unexpected error occurred.";
+        report.textContent = "";
+      } finally {
+        result.hidden = false;
+        button.disabled = false;
+        button.textContent = "Compare snapshots";
+      }
+    });
+  </script>
+</body>
+</html>
